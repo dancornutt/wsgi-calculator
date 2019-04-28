@@ -46,19 +46,62 @@ To submit your homework:
 """
 
 
+def home():
+    """Returns body of web page for Home page"""
+    return """Welcome to the home page!
+    this groudbreaking calculator accepts the following operations:
+        'add' for addition
+        'subract' for subtraction
+        'multiply' for multiplication
+        'divide' for division
+
+
+    """
+
+
+def divide(*args):
+    """ Returns a STRING with the division of the arguments """
+    total = args[0]
+    for value in args[1:]:
+        total /= value
+    return str(total)
+
+
+def multiply(*args):
+    """ Returns a STRING with the multiplication of the arguments """
+    total = args[0]
+    for value in args[1:]:
+        total *= value
+    return str(total)
+
+
+def subtract(*args):
+    """ Returns a STRING with the subraction of the arguments """
+    total = args[0]
+    for value in args[1:]:
+        total -= value
+    return str(total)
+
+
 def add(*args):
     """ Returns a STRING with the sum of the arguments """
-
-    # TODO: Fill sum with the correct value, based on the
-    # args provided.
-    print("Made it!")
     sum = 0
     for value in args:
-        print("the loop value is: " + value)
-        sum += int(value)
+        sum += value
     return str(sum)
 
-# TODO: Add functions for handling more arithmetic operations.
+
+def dispatch(f_name):
+    """Dispatch dictionary for pages of web app"""
+    dispatch_d = {
+        "add": add,
+        "subtract": subtract,
+        "multiply": multiply,
+        "divide": divide,
+        "": home,
+    }
+    func = dispatch_d.get(f_name)
+    return func
 
 
 def resolve_path(path):
@@ -71,13 +114,12 @@ def resolve_path(path):
     # examples provide the correct *syntax*, but you should
     # determine the actual values of func and args using the
     # path.
-    func = add
+
     # args = ['25', '32']
     chunks = path.split("/")
-    func = chunks[1]
-    args = chunks[2:]
-    print(func, args)
-
+    print("function chunk is: {}".format(chunks[1]))
+    func = dispatch(chunks[1])
+    args = [float(x) for x in chunks[2:]]
     return func, args
 
 
@@ -87,14 +129,18 @@ def application(environ, start_response):
     # invoke start_response(status, headers) and also return
     # the body of the response in BYTE encoding.
     # pprint.pprint(environ)
-
+    print("In App func")
     headers = [('Content-type', 'text/html')]
     try:
+        print("In try loop")
         path = environ.get('PATH_INFO', None)
         if path is None:
+            print("path is None! path={}".format(path))
             raise NameError
+        print("Path ISNT None")
         func, args = resolve_path(path)
         body = func(*args)
+        print("body= {}".format(body))
         status = "200 OK"
     except NameError:
         status = "404 Not Found"
